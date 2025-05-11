@@ -1,0 +1,158 @@
+import java.util.ArrayList;
+import java.util.Scanner;
+
+public class GerenciadorDeAtividades {
+    private static ArrayList<Atividade> atividades = new ArrayList<>();
+    private static Scanner scanner = new Scanner(System.in);
+
+    public static void main(String[] args) {
+        int opcao;
+        do {
+            System.out.println("\n*** MENU ***");
+            System.out.println("1 - Adicionar Nova Atividade");
+            System.out.println("2 - Pesquisar Atividade por Título");
+            System.out.println("3 - Excluir Atividade pelo Título");
+            System.out.println("4 - Atualizar Atividade pelo Título");
+            System.out.println("5 - Iniciar Atividade");
+            System.out.println("6 - Finalizar Atividade");
+            System.out.println("7 - Listar Atividades");
+            System.out.println("8 - Sair do Sistema");
+            System.out.print("Escolha uma opção: ");
+            opcao = scanner.nextInt();
+            scanner.nextLine(); // Limpar buffer
+
+            switch (opcao) {
+                case 1 -> adicionarAtividade();
+                case 2 -> pesquisarAtividade();
+                case 3 -> excluirAtividade();
+                case 4 -> atualizarAtividade();
+                case 5 -> iniciarAtividade();
+                case 6 -> finalizarAtividade();
+                case 7 -> listarAtividades();
+                case 8 -> System.out.println("Saindo do sistema...");
+                default -> System.out.println("Opção inválida!");
+            }
+        } while (opcao != 8);
+    }
+
+    private static void adicionarAtividade() {
+        System.out.print("Título da atividade: ");
+        String titulo = scanner.nextLine();
+        System.out.print("Descrição: ");
+        String descricao = scanner.nextLine();
+        atividades.add(new Atividade(titulo, descricao));
+        System.out.println("Nova atividade cadastrada com sucesso!");
+    }
+
+    private static Atividade encontrarAtividade(String titulo) {
+        for (Atividade a : atividades) {
+            if (a.getTitulo().equalsIgnoreCase(titulo)) return a;
+        }
+        return null;
+    }
+
+    private static void pesquisarAtividade() {
+        System.out.print("Digite o título da atividade: ");
+        String titulo = scanner.nextLine();
+        Atividade a = encontrarAtividade(titulo);
+        if (a != null) {
+            System.out.println(a);
+        } else {
+            System.out.println("Atividade não encontrada.");
+        }
+    }
+
+    private static void excluirAtividade() {
+        System.out.print("Digite o título da atividade a excluir: ");
+        String titulo = scanner.nextLine();
+        Atividade a = encontrarAtividade(titulo);
+        if (a != null) {
+            atividades.remove(a);
+            System.out.println("Atividade excluída com sucesso!");
+        } else {
+            System.out.println("Atividade não encontrada.");
+        }
+    }
+
+    private static void atualizarAtividade() {
+        System.out.print("Digite o título da atividade a atualizar: ");
+        String titulo = scanner.nextLine();
+        Atividade a = encontrarAtividade(titulo);
+        if (a != null) {
+            System.out.print("Novo título: ");
+            a.setTitulo(scanner.nextLine());
+            System.out.print("Nova descrição: ");
+            a.setDescricao(scanner.nextLine());
+            System.out.println("Atividade atualizada com sucesso!");
+        } else {
+            System.out.println("Atividade não encontrada.");
+        }
+    }
+
+    private static void iniciarAtividade() {
+        System.out.print("Título da atividade a iniciar: ");
+        String titulo = scanner.nextLine();
+        Atividade a = encontrarAtividade(titulo);
+        if (a != null && a.getStatus().equals("Pendente")) {
+            a.setStatus("Em andamento");
+            System.out.println("Atividade iniciada com sucesso!");
+        } else {
+            System.out.println("Atividade não encontrada ou já iniciada.");
+        }
+    }
+
+    private static void finalizarAtividade() {
+        System.out.print("Título da atividade a finalizar: ");
+        String titulo = scanner.nextLine();
+        Atividade a = encontrarAtividade(titulo);
+        if (a != null && a.getStatus().equals("Em andamento")) {
+            a.setStatus("Concluída");
+            System.out.println("Atividade finalizada com sucesso!");
+        } else {
+            System.out.println("Atividade não encontrada ou já finalizada.");
+        }
+    }
+
+    private static void listarAtividades() {
+        int opcao;
+        do {
+            System.out.println("\n*** SUBMENU DE LISTAGEM ***");
+            System.out.println("1 - Todas");
+            System.out.println("2 - Pendentes");
+            System.out.println("3 - Em andamento");
+            System.out.println("4 - Concluídas");
+            System.out.println("5 - Voltar");
+            System.out.print("Escolha uma opção: ");
+            opcao = scanner.nextInt();
+            scanner.nextLine();
+
+            String filtro = switch (opcao) {
+                case 1 -> null;
+                case 2 -> "Pendente";
+                case 3 -> "Em andamento";
+                case 4 -> "Concluída";
+                default -> "";
+            };
+
+            if (opcao >= 1 && opcao <= 4) {
+                boolean encontrou = false;
+                for (Atividade a : atividades) {
+                    if (filtro == null || a.getStatus().equals(filtro)) {
+                        System.out.println("\n" + a);
+                        encontrou = true;
+                    }
+                }
+                if (!encontrou) {
+                    System.out.println(switch (opcao) {
+                        case 1 -> "Nenhuma atividade cadastrada.";
+                        case 2 -> "Nenhuma atividade pendente cadastrada.";
+                        case 3 -> "Nenhuma atividade em andamento cadastrada.";
+                        case 4 -> "Nenhuma atividade concluída cadastrada.";
+                        default -> "";
+                    });
+                }
+            }
+
+        } while (opcao != 5);
+    }
+}
