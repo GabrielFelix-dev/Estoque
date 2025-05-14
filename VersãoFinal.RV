@@ -1,0 +1,170 @@
+import java.util.ArrayList;
+import java.util.InputMismatchException;
+import java.util.Scanner;
+
+public class GerenciadorDeAtividades {
+    private static ArrayList<Atividade> atividades = new ArrayList<>();
+    private static Scanner scanner = new Scanner(System.in);
+
+    public static void main(String[] args) {
+        int opcao;
+        do {
+            System.out.println("\n*** MENU ***");
+            System.out.println("1 - Adicionar Nova Atividade");
+            System.out.println("2 - Pesquisar Atividade por Título");
+            System.out.println("3 - Excluir Atividade pelo Título");
+            System.out.println("4 - Atualizar Atividade pelo Título");
+            System.out.println("5 - Iniciar Atividade");
+            System.out.println("6 - Finalizar Atividade");
+            System.out.println("7 - Listar Atividades");
+            System.out.println("8 - Sair do Sistema");
+            opcao = lerOpcaoInt("Escolha uma opção: ", 1, 8);
+
+            switch (opcao) {
+                case 1: adicionarAtividade(); break;
+                case 2: pesquisarAtividade(); break;
+                case 3: excluirAtividade(); break;
+                case 4: atualizarAtividade(); break;
+                case 5: iniciarAtividade(); break;
+                case 6: finalizarAtividade(); break;
+                case 7: listarAtividades(); break;
+                case 8: System.out.println("Saindo do sistema..."); break;
+            }
+        } while (opcao != 8);
+    }
+
+    private static void adicionarAtividade() {
+        String titulo = lerTextoNaoVazio("Título da atividade: ");
+        String descricao = lerTextoNaoVazio("Descrição: ");
+        atividades.add(new Atividade(titulo, descricao));
+        System.out.println("Nova atividade cadastrada com sucesso!");
+    }
+
+    private static Atividade encontrarAtividade(String titulo) {
+        for (Atividade a : atividades) {
+            if (a.getTitulo().equalsIgnoreCase(titulo)) return a;
+        }
+        return null;
+    }
+
+    private static void pesquisarAtividade() {
+        String titulo = lerTextoNaoVazio("Digite o título da atividade: ");
+        Atividade a = encontrarAtividade(titulo);
+        if (a != null) System.out.println(a);
+        else System.out.println("Atividade não encontrada.");
+    }
+
+    private static void excluirAtividade() {
+        String titulo = lerTextoNaoVazio("Digite o título da atividade a excluir: ");
+        Atividade a = encontrarAtividade(titulo);
+        if (a != null) {
+            atividades.remove(a);
+            System.out.println("Atividade excluída com sucesso!");
+        } else {
+            System.out.println("Atividade não encontrada.");
+        }
+    }
+
+    private static void atualizarAtividade() {
+        String titulo = lerTextoNaoVazio("Digite o título da atividade a atualizar: ");
+        Atividade a = encontrarAtividade(titulo);
+        if (a != null) {
+            System.out.println("O que deseja atualizar?");
+            System.out.println("1 - Título");
+            System.out.println("2 - Descrição");
+            System.out.println("3 - Título e Descrição");
+            int escolha = lerOpcaoInt("Escolha uma opção: ", 1, 3);
+
+            if (escolha == 1 || escolha == 3) {
+                a.setTitulo(lerTextoNaoVazio("Novo título: "));
+            }
+            if (escolha == 2 || escolha == 3) {
+                a.setDescricao(lerTextoNaoVazio("Nova descrição: "));
+            }
+            System.out.println("Atividade atualizada com sucesso!");
+        } else {
+            System.out.println("Atividade não encontrada.");
+        }
+    }
+
+    private static void iniciarAtividade() {
+        String titulo = lerTextoNaoVazio("Título da atividade a iniciar: ");
+        Atividade a = encontrarAtividade(titulo);
+        if (a != null && a.getStatus().equals("Pendente")) {
+            a.setStatus("Em andamento");
+            System.out.println("Atividade iniciada com sucesso!");
+        } else {
+            System.out.println("Atividade não encontrada ou já iniciada.");
+        }
+    }
+
+    private static void finalizarAtividade() {
+        String titulo = lerTextoNaoVazio("Título da atividade a finalizar: ");
+        Atividade a = encontrarAtividade(titulo);
+        if (a != null && a.getStatus().equals("Em andamento")) {
+            a.setStatus("Concluída");
+            System.out.println("Atividade finalizada com sucesso!");
+        } else {
+            System.out.println("Atividade não encontrada ou já finalizada.");
+        }
+    }
+
+    private static void listarAtividades() {
+        int opcao;
+        do {
+            System.out.println("\n*** SUBMENU DE LISTAGEM ***");
+            System.out.println("1 - Todas");
+            System.out.println("2 - Pendentes");
+            System.out.println("3 - Em andamento");
+            System.out.println("4 - Concluídas");
+            System.out.println("5 - Voltar");
+            opcao = lerOpcaoInt("Escolha uma opção: ", 1, 5);
+
+            if (opcao == 5) break;
+
+            String filtro = null;
+            if (opcao == 2) filtro = "Pendente";
+            else if (opcao == 3) filtro = "Em andamento";
+            else if (opcao == 4) filtro = "Concluída";
+
+            boolean encontrou = false;
+            for (Atividade a : atividades) {
+                if (filtro == null || a.getStatus().equals(filtro)) {
+                    System.out.println("\n" + a);
+                    encontrou = true;
+                }
+            }
+            if (!encontrou) {
+                System.out.println("Nenhuma atividade encontrada.");
+            }
+        } while (true);
+    }
+
+    // Métodos utilitários
+    private static int lerOpcaoInt(String prompt, int min, int max) {
+        int valor = -1;
+        while (true) {
+            System.out.print(prompt);
+            try {
+                valor = Integer.parseInt(scanner.nextLine());
+                if (valor >= min && valor <= max) break;
+                else System.out.println("Digite um número entre " + min + " e " + max + ".");
+            } catch (NumberFormatException e) {
+                System.out.println("Entrada inválida. Digite um número inteiro.");
+            }
+        }
+        return valor;
+    }
+
+    private static String lerTextoNaoVazio(String prompt) {
+        String texto;
+        do {
+            System.out.print(prompt);
+            texto = scanner.nextLine().trim();
+            if (texto.isEmpty()) {
+                System.out.println("Entrada inválida. O campo não pode estar vazio.");
+            }
+        } while (texto.isEmpty());
+        return texto;
+    }
+}
